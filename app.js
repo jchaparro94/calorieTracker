@@ -69,6 +69,22 @@ const ItemCtrl = (function () {
       });
       return found;
     },
+    updateItem: function (name, calories) {
+      // Turn the calories to a number 
+      calories = parseInt(calories);
+
+      let found = null;
+
+      data.items.forEach(function (item) {
+        if (item.id === data.currentItem.id) {
+          item.name = name;
+          item.calories = calories;
+          found = item;
+        }
+      });
+
+      return found;
+    },
     setCurrentItem: function (item) {
       data.currentItem = item;
     },
@@ -113,6 +129,7 @@ const UICtrl = (function () {
     itemNameInput: '#item-name',
     itemCaloriesInput: '#item-calories',
     totalCalories: '.total-calories',
+    listItems: '#item-list li'
   }
 
   // Public Methods
@@ -158,6 +175,24 @@ const UICtrl = (function () {
       `;
       // Insert item 
       document.querySelector(UISelectors.itemList).insertAdjacentElement('beforeend', li);
+    },
+    updateListItem: function (item) {
+      let listItems = document.querySelectorAll(UISelectors.listItems);
+
+      // Turn Node List into array 
+      listItems = Array.from(listItems);
+
+      listItems.forEach(function (listItem) {
+        const itemID = listItem.getAttribute('id');
+
+        if (itemID === `item-${item.id}`) {
+          document.querySelector(`#${itemID}`).innerHTML = `<strong>${item.name}: </strong><em>${item.calories} Calories</em>
+          <a href="#" class="secondary-content">
+            <i class="edit-item fa fa-pencil"></i>
+          </a>
+        </li>`
+        }
+      });
     },
     clearInput: function () {
       document.querySelector(UISelectors.itemNameInput).value = '';
@@ -279,7 +314,14 @@ const App = (function (ItemCtrl, UICtrl) {
 
   // Item update submit 
   const itemUpdateSubmit = function (e) {
-    console.log('updated');
+    // Get item input 
+    const input = UICtrl.getItemInput();
+
+    // Update Item 
+    const updatedItem = ItemCtrl.updateItem(input.name, input.calories);
+
+    // Update UI 
+    UICtrl.updateListItem(updatedItem);
 
     e.preventDefault();
   }
